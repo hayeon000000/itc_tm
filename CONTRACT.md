@@ -53,3 +53,6 @@ window.GameCore.mockPredict("가위" | "바위" | "보" | "대기")
 | PREDICT_INTERVAL_MS | 120 | 부스 노트북 성능 테스트 후 조정 |
 | COUNTDOWN_STEP_MS | 500 | C와 연출 맞춰서 조정 가능 |
 | RESULT_DISPLAY_MS | 3000 | C와 연출 맞춰서 조정 가능 |
+
+---추가
+참고로 UI(C) 쪽에서는 이제 버튼(또는 스페이스바 등) 클릭 이벤트 핸들러에서 GameCore.startRound()를 호출해주면 돼요 — game:stateChange나 game:countdownTick 이벤트 리스너는 그대로 두면 됩니다. 공개 API에 startRound가 새로 추가된 거라 /CONTRACT.md에도 한 줄 추가해서 A, C한테 공유해두시는 게 좋을 것 같아요.
