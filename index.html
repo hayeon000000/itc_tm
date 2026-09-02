@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>절대 이길 수 없는 가위바위보</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>절대 이길 수 없는 가위바위보</h1>
+
+  <div class="stage">
+    <video id="webcam" autoplay playsinline muted></video>
+    <div class="overlay">
+      <div id="countdown"></div>
+      <div id="resultHand"></div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span>state: <b id="stateLabel">IDLE</b></span>
+    <span>mode: <b id="modeLabel">MOCK</b></span>
+  </div>
+
+  <div class="debug">
+    mock 입력 — <kbd>1</kbd>가위 <kbd>2</kbd>바위 <kbd>3</kbd>보 <kbd>0</kbd>대기 · <kbd>r</kbd> 강제 리셋
+  </div>
+</div>
+
+<!-- A가 모델 완성해서 /model 폴더에 파일 넣어주면 아래 두 줄 주석 해제 -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script> -->
+
+<script src="js/game-core.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

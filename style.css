@@ -1,0 +1,80 @@
+/* css/style.css
+   담당: C (UI/UX & 부스 연출)
+   지금 값은 테스트용 최소 스타일입니다. 부스 컨셉/연출에 맞게 자유롭게 교체하세요.
+   여기 클래스/id 이름은 index.html, js/ui.js와 맞물려 있으니 바꿀 땐 세 파일 같이 수정.
+*/
+
+:root {
+  --bg: #0b0e11;
+  --panel: #14181d;
+  --line: #262c33;
+  --text: #e8ecef;
+  --dim: #7c8a97;
+  --accent: #ffb454;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  margin: 0;
+  padding: 32px 16px;
+}
+.wrap { max-width: 640px; margin: 0 auto; }
+h1 { font-size: 1.05rem; font-weight: 600; color: var(--dim); margin: 0 0 20px; }
+
+.stage {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+}
+video {
+  width: 100%;
+  display: block;
+  border-radius: 6px;
+  transform: scaleX(-1);
+  background: #000;
+}
+.overlay {
+  position: absolute;
+  inset: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  pointer-events: none;
+  padding-bottom: 24px;
+  text-align: center;
+}
+#countdown { font-size: 3.2rem; font-weight: 700; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+#resultHand { font-size: 1.4rem; font-weight: 600; color: var(--accent); text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--dim);
+  margin-top: 10px;
+  padding: 0 2px;
+}
+.statusbar b { color: var(--text); }
+
+.debug {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--dim);
+}
+.debug kbd {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--text);
+}
