@@ -2,34 +2,56 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>절대 이길 수 없는 가위바위보</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>절대 이길 수 없는 가위바위보</h1>
+<div class="stage">
+  <header>
+    <div class="logo">절대 이길 수 없는 가위바위보</div>
+    <div class="streak">연승 <b id="streakCount">0</b></div>
+  </header>
 
-  <div class="stage">
-    <video id="webcam" autoplay playsinline muted></video>
-    <div class="overlay">
-      <div id="countdown"></div>
-      <div id="resultHand"></div>
+  <main>
+    <div class="side player">
+      <div class="side-label">PLAYER</div>
+      <div class="cam-frame">
+        <video id="webcam" autoplay playsinline muted></video>
+      </div>
     </div>
+    <div class="side ai">
+      <div class="side-label">AI</div>
+      <div class="ai-placeholder" id="aiHand">🤖</div>
+    </div>
+
+    <div class="center-overlay">
+      <div id="countdownNum" class="countdown-num"></div>
+      <div id="resultBanner" class="result-banner"></div>
+      <button id="retryBtn" class="retry-btn" style="display:none;">다시하기</button>
+    </div>
+  </main>
+
+  <footer>
+    <span id="statusText">START를 눌러 시작하세요</span>
+  </footer>
+
+  <div class="start-screen" id="startScreen">
+    <div class="never-stamp">NEVER WIN</div>
+    <h1>절대 이길 수 없는<br><span>가위바위보</span></h1>
+    <div class="rps-emojis"><span>✌️</span><span>✊</span><span>✋</span></div>
+    <button id="startBtn">START</button>
   </div>
 
-  <div class="statusbar">
-    <span>state: <b id="stateLabel">IDLE</b></span>
-    <span>mode: <b id="modeLabel">MOCK</b></span>
-  </div>
-
-  <div class="debug">
-    mock 입력 — <kbd>1</kbd>가위 <kbd>2</kbd>바위 <kbd>3</kbd>보 <kbd>0</kbd>대기 · <kbd>r</kbd> 강제 리셋
+  <div style="position:fixed;bottom:4px;left:4px;font-size:11px;opacity:.6;z-index:20;color:#fff;">
+    state: <b id="stateLabel">IDLE</b> · mode: <b id="modeLabel">MOCK</b> · 예측: <b id="predictLabel">-</b><br>
+    mock 입력 — <kbd>1</kbd>가위 <kbd>2</kbd>바위 <kbd>3</kbd>보 <kbd>0</kbd>대기 · <kbd>r</kbd> 강제 리셋 · <kbd>f</kbd> 전체화면
   </div>
 </div>
 
-<!-- A가 모델 완성해서 /model 폴더에 파일 넣어주면 아래 두 줄 주석 해제 -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script> -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script> -->
+<!-- model/의 tfjsVersion(1.7.4) · packageVersion(0.8.4-alpha2)과 호환되는 버전으로 고정 -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 
 <script src="js/game-core.js"></script>
 <script src="js/ui.js"></script>

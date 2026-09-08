@@ -48,11 +48,21 @@ window.GameCore.mockPredict("가위" | "바위" | "보" | "대기")
 
 | 값 | 현재 | 비고 |
 |---|---|---|
-| CONFIDENCE_THRESHOLD | 0.85 | 임시값, A 튜닝 후 갱신 |
+| CONFIDENCE_THRESHOLD | 0.6 | 0.85였을 때 실제 웹캠에서 항상 "다시 시도"로 빠져서 0.6으로 낮춤. game:predict 이벤트(아래)로 실시간 신뢰도 보면서 A가 재튜닝 |
+| JUDGE_CAPTURE_MS | 500 | 300ms였을 때 추론 지연으로 판정 캡처 창에 프레임이 하나도 안 잡히는 경우가 있어 늘림 |
 | STABLE_FRAMES_TO_START | 4 | 지터 방지용 연속 인식 프레임 수 |
 | PREDICT_INTERVAL_MS | 120 | 부스 노트북 성능 테스트 후 조정 |
 | COUNTDOWN_STEP_MS | 500 | C와 연출 맞춰서 조정 가능 |
 | RESULT_DISPLAY_MS | 3000 | C와 연출 맞춰서 조정 가능 |
+
+## 5. B → C: 디버그용 실시간 예측 이벤트 (신규)
+
+`js/game-core.js`는 판정과 무관하게 매 프레임마다 아래 이벤트도 함께 발행함 (튜닝/디버그 전용):
+
+```
+game:predict
+detail: { hand: string, confidence: number(0~1) }
+```
 
 ---추가
 참고로 UI(C) 쪽에서는 이제 버튼(또는 스페이스바 등) 클릭 이벤트 핸들러에서 GameCore.startRound()를 호출해주면 돼요 — game:stateChange나 game:countdownTick 이벤트 리스너는 그대로 두면 됩니다. 공개 API에 startRound가 새로 추가된 거라 /CONTRACT.md에도 한 줄 추가해서 A, C한테 공유해두시는 게 좋을 것 같아요.

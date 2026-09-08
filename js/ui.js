@@ -69,6 +69,7 @@
     const { state } = e.detail; // "IDLE" | "COUNTDOWN" | "JUDGE" | "RESULT"
     const num = document.getElementById('countdownNum');
     const banner = document.getElementById('resultBanner');
+    const retryBtn = document.getElementById('retryBtn');
 
     // 디버그 표시 갱신: 지금 MOCK(키보드 테스트)인지 LIVE MODEL(실제 카메라 인식)인지 + 현재 상태
     document.getElementById('stateLabel').textContent = state;
@@ -79,18 +80,22 @@
       case 'IDLE':
         num.style.display = 'none';
         banner.style.display = 'none';
+        retryBtn.style.display = 'none';
         document.getElementById('statusText').textContent = '손을 화면에 보여주세요';
+        resetAiHand();
         break;
       case 'COUNTDOWN':
         banner.style.display = 'none';
+        retryBtn.style.display = 'none';
         num.style.display = 'block';
+        resetAiHand(); // 이전 라운드에서 공개했던 AI 패를 다음 라운드 전에 다시 가려둠
         break;
       case 'JUDGE':
         num.style.display = 'none';
         document.getElementById('statusText').textContent = '판독 중...';
         break;
       case 'RESULT':
-        // 실제 배너는 game:result 이벤트에서 표시
+        // 배너/재도전 버튼은 game:result 이벤트에서 표시
         break;
     }
   });
@@ -101,6 +106,19 @@
   function labelToEmoji(label) {
     const clean = (label || '').replace('!', '').trim();
     return HAND_EMOJI[clean] || label;
+  }
+
+  // AI 쪽 패 표시: 대기 중엔 로봇 아이콘, 결과 나오면 winHand(=AI가 낸 패)를 이모지로 공개
+  function resetAiHand() {
+    const aiHand = document.getElementById('aiHand');
+    aiHand.textContent = '🤖';
+    aiHand.classList.remove('reveal');
+  }
+  function revealAiHand(winHand) {
+    const aiHand = document.getElementById('aiHand');
+    aiHand.textContent = winHand ? (HAND_EMOJI[winHand] || winHand) : '❔'; // winHand가 null이면 인식 실패라 AI도 패를 안 낸 것으로 표시
+    void aiHand.offsetWidth; // 애니메이션 재시작을 위해 리플로우 강제
+    aiHand.classList.add('reveal');
   }
 
   // 카운트다운이 한 스텝 진행될 때마다 B가 쏘는 이벤트: 숫자/문구를 이모지로 바꿔 표시하고 비프음 재생
@@ -125,6 +143,8 @@
     resetIdleTimer();
     const { userHand, winHand } = e.detail;
     showResult(userHand, winHand);
+    revealAiHand(winHand);
+    document.getElementById('retryBtn').style.display = 'inline-block'; // 결과 확인 즉시 재도전 가능하도록 표시
     if (!winHand) return; // 인식 실패: 사운드/연승 카운트 모두 변화 없음
     const didWin = winHand === userHand;
     updateStreak(didWin);
@@ -133,6 +153,26 @@
     } else {
       playFailSound(); // AI 승리(플레이어 패배) → 패배 효과음(failSound) 재생
     }
+  });
+
+  // 결과 화면에서 "다시하기" 클릭 → 즉시 IDLE로 되돌린 뒤 바로 새 라운드 시작
+  // (자연 리셋까지 3초를 기다리지 않고 재도전 가능하게 함)
+  document.getElementById('retryBtn').addEventListener('click', () => {
+    document.getElementById('retryBtn').style.display = 'none';
+    if (window.GameCore && typeof window.GameCore.forceReset === 'function') {
+      window.GameCore.forceReset();
+    }
+    if (window.GameCore && typeof window.GameCore.startRound === 'function') {
+      window.GameCore.startRound();
+    }
+  });
+
+  // 튜닝용: 매 프레임 모델이 실제로 뭘 얼마나 확신하는지 디버그 패널에 실시간 표시
+  // (판정 로직에는 관여하지 않음 — game-core.js의 CONFIDENCE_THRESHOLD 값 튜닝할 때 참고용)
+  window.addEventListener('game:predict', (e) => {
+    const { hand, confidence } = e.detail;
+    const el = document.getElementById('predictLabel');
+    if (el) el.textContent = hand + ' ' + Math.round(confidence * 100) + '%';
   });
 
   // ===== 풀스크린 모드 =====
@@ -222,9 +262,7 @@
       document.documentElement.requestFullscreen().catch(() => {});
     }
     resetIdleTimer(); // 라운드 시작 시점부터 무입력 감시 시작 (5초 소프트 리셋 / 25초 하드 리셋)
-    // 주의: startCamera()는 이 파일 안에 정의되어 있지 않음. 현재 이 HTML에는 <script src="js/game-core.js">
-    // 같은 외부 스크립트 태그가 없어서, 별도로 추가하지 않으면 여기서 ReferenceError가 발생함
-    startCamera();
+    // 웹캠은 js/game-core.js의 init()에서 페이지 로드 시 이미 시작되므로 여기서 별도로 시작하지 않음
 
     // GameCore(js/game-core.js)가 아직 로드되지 않았거나 startRound가 없으면 경고만 띄우고 조용히 넘어감
     if (window.GameCore && typeof window.GameCore.startRound === 'function') {

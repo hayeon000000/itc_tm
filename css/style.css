@@ -1,4 +1,3 @@
-<style>
   /* ====== 색상 · 배경 테마 변수 ====== */
   :root {
     /* 시작 화면과 전체 배경(html, body)에 깔리는 사진.*/
@@ -87,14 +86,18 @@
     overflow: hidden; background: #000;
     border: 3px solid var(--accent1);
   }
-  #camVideo { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); } /* scaleX(-1): 좌우 반전으로 거울처럼 보이게 함 */
+  #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); } /* scaleX(-1): 좌우 반전으로 거울처럼 보이게 함 (id는 js/game-core.js의 getElementById("webcam")과 일치해야 함) */
 
   /* AI 쪽에 표시되는 이미지 영역 (실제 이미지는 아래 HTML의 base64 <img>) */
   .ai-placeholder {
     z-index: 1;
     width: min(85%, 420px); aspect-ratio: 1;
     display: flex; align-items: center; justify-content: center;
+    font-size: clamp(90px, 14vw, 170px); /* 대기 로봇 이모지 · AI가 낸 패(✌️✊✋) 공용 크기 */
+    transition: transform .2s ease;
   }
+  .ai-placeholder.reveal { animation: aiReveal .35s ease; }
+  @keyframes aiReveal { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   .ai-placeholder img {
     width: 100%;
     height: 100%;
@@ -203,3 +206,19 @@
     transition: transform .15s ease;
   }
   #startBtn:hover { transform: scale(1.05); }
+
+  /* 결과 확인 후 재도전 버튼. .center-overlay가 pointer-events:none이라 여기만 auto로 되돌림 */
+  .retry-btn {
+    pointer-events: auto;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    padding: 10px 32px;
+    background: var(--gold);
+    border: none;
+    color: #120f2e;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform .15s ease;
+  }
+  .retry-btn:hover { transform: scale(1.05); }
