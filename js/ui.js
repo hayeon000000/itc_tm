@@ -55,11 +55,8 @@
       return;
     }
 
-    // winHand는 항상 'win' 아니면 'lose'로만 판정됨 → CSS의 .result-banner.draw는 현재 실제로는 붙지 않음
-    const kind = winHand === userHand ? 'win' : 'lose';
-    banner.className = 'result-banner ' + kind; // 'win' / 'lose'
-    banner.textContent = kind === 'win' ? '승리!' : '패배…';
-    banner.style.display = 'block';
+    // 승패 문구(승리!/패배…)는 표시하지 않음 — 행사 당일 스태프가 AI 패와 비교해 직접 판정
+    banner.style.display = 'none';
   }
 
   // ===== CONTRACT.md 2. B → C: 이벤트 인터페이스 =====
@@ -131,30 +128,17 @@
     playCountdownBeep(label);
   });
 
-  // 연승(streak) 카운터: 승리하면 +1, 패배하면 0으로 리셋. 인식 실패(winHand 없음)는 카운트에 영향 없음
-  let streak = 0;
-  const streakCountEl = document.getElementById('streakCount');
-  function updateStreak(didWin) {
-    streak = didWin ? streak + 1 : 0;
-    streakCountEl.textContent = streak;
-  }
-
   window.addEventListener('game:result', (e) => {
     resetIdleTimer();
     const { userHand, winHand } = e.detail;
     showResult(userHand, winHand);
-    document.querySelector('.result-actions').classList.remove('stacked'); // 결과 배너와 함께일 땐 가로 배치
+    // 배너('다시 시도해주세요')가 함께 뜰 때만 가로 배치, 버튼만 있을 땐 세로 배치
+    document.querySelector('.result-actions').classList.toggle('stacked', !!winHand);
     revealAiHand(winHand);
     document.getElementById('retryBtn').style.display = 'inline-block'; // 결과 확인 즉시 재도전 가능하도록 표시
     document.getElementById('homeBtn').style.display = 'inline-block'; // 또는 처음(START) 화면으로 돌아가기
-    if (!winHand) return; // 인식 실패: 사운드/연승 카운트 모두 변화 없음
-    const didWin = winHand === userHand;
-    updateStreak(didWin);
-    if (didWin) {
-      playSuccessSound(); // 플레이어 승리 → 승리 효과음(successSound) 재생
-    } else {
-      playFailSound(); // AI 승리(플레이어 패배) → 패배 효과음(failSound) 재생
-    }
+    // 승리/패배 효과음도 승패를 알려주므로 재생하지 않음 (스태프가 직접 판정)
+    // 다시 켜려면: if (winHand) (winHand === userHand ? playSuccessSound : playFailSound)();
   });
 
   // 결과 화면에서 "다시하기" 클릭 → 즉시 IDLE로 되돌린 뒤 바로 새 라운드 시작
@@ -241,9 +225,7 @@
     if (hardIdleTimer) clearTimeout(hardIdleTimer);
     softIdleTimer = null;
     hardIdleTimer = null;
-    // 새 사람이 시작하는 것으로 보고 연승/AI 패 표시도 초기화
-    streak = 0;
-    streakCountEl.textContent = 0;
+    // 새 사람이 시작하는 것으로 보고 AI 패 표시도 초기화
     resetAiHand();
     document.getElementById('startScreen').style.display = 'flex';
     document.getElementById('countdownNum').style.display = 'none';
