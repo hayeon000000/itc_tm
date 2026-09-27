@@ -70,23 +70,23 @@
     const num = document.getElementById('countdownNum');
     const banner = document.getElementById('resultBanner');
     const retryBtn = document.getElementById('retryBtn');
-
-    // 디버그 표시 갱신: 지금 MOCK(키보드 테스트)인지 LIVE MODEL(실제 카메라 인식)인지 + 현재 상태
-    document.getElementById('stateLabel').textContent = state;
-    document.getElementById('modeLabel').textContent =
-      (window.GameCore && window.GameCore.isMockMode) ? 'MOCK' : 'LIVE MODEL';
+    const homeBtn = document.getElementById('homeBtn');
 
     switch (state) {
       case 'IDLE':
         num.style.display = 'none';
         banner.style.display = 'none';
-        retryBtn.style.display = 'none';
+        // 결과 배너가 사라지고 버튼만 남으면 세로로 정렬
+        document.querySelector('.result-actions').classList.add('stacked');
+        // 다시하기/처음 화면으로 버튼은 결과 후 자동 리셋(IDLE)돼도 계속 보이게 둠
+        // (다음 라운드 시작(COUNTDOWN) 또는 START 화면 복귀 시에만 숨김)
         document.getElementById('statusText').textContent = '손을 화면에 보여주세요';
         resetAiHand();
         break;
       case 'COUNTDOWN':
         banner.style.display = 'none';
         retryBtn.style.display = 'none';
+        homeBtn.style.display = 'none';
         num.style.display = 'block';
         resetAiHand(); // 이전 라운드에서 공개했던 AI 패를 다음 라운드 전에 다시 가려둠
         break;
@@ -143,8 +143,10 @@
     resetIdleTimer();
     const { userHand, winHand } = e.detail;
     showResult(userHand, winHand);
+    document.querySelector('.result-actions').classList.remove('stacked'); // 결과 배너와 함께일 땐 가로 배치
     revealAiHand(winHand);
     document.getElementById('retryBtn').style.display = 'inline-block'; // 결과 확인 즉시 재도전 가능하도록 표시
+    document.getElementById('homeBtn').style.display = 'inline-block'; // 또는 처음(START) 화면으로 돌아가기
     if (!winHand) return; // 인식 실패: 사운드/연승 카운트 모두 변화 없음
     const didWin = winHand === userHand;
     updateStreak(didWin);
@@ -165,6 +167,11 @@
     if (window.GameCore && typeof window.GameCore.startRound === 'function') {
       window.GameCore.startRound();
     }
+  });
+
+  // 결과 화면에서 "처음 화면으로" 클릭 → 라운드를 정리하고 START 화면으로 복귀
+  document.getElementById('homeBtn').addEventListener('click', () => {
+    goToStandby();
   });
 
   // 튜닝용: 매 프레임 모델이 실제로 뭘 얼마나 확신하는지 디버그 패널에 실시간 표시
@@ -225,14 +232,25 @@
 
   // 25초 무입력: 완전한 대기 전환 (START 화면 복귀)
   function goToStandby() {
-    hardIdleTimer = null;
-    document.getElementById('startScreen').style.display = 'flex';
-    document.getElementById('countdownNum').style.display = 'none';
-    document.getElementById('resultBanner').style.display = 'none';
-    document.getElementById('statusText').textContent = 'START를 눌러 시작하세요';
+    // forceReset()이 IDLE 이벤트를 쏘면서 UI/타이머를 건드리므로 먼저 호출한 뒤 화면을 정리
     if (window.GameCore && typeof window.GameCore.forceReset === 'function') {
       window.GameCore.forceReset();
     }
+    // START 화면에선 무입력 감시가 필요 없으므로 타이머 모두 정지
+    if (softIdleTimer) clearTimeout(softIdleTimer);
+    if (hardIdleTimer) clearTimeout(hardIdleTimer);
+    softIdleTimer = null;
+    hardIdleTimer = null;
+    // 새 사람이 시작하는 것으로 보고 연승/AI 패 표시도 초기화
+    streak = 0;
+    streakCountEl.textContent = 0;
+    resetAiHand();
+    document.getElementById('startScreen').style.display = 'flex';
+    document.getElementById('countdownNum').style.display = 'none';
+    document.getElementById('resultBanner').style.display = 'none';
+    document.getElementById('retryBtn').style.display = 'none';
+    document.getElementById('homeBtn').style.display = 'none';
+    document.getElementById('statusText').textContent = 'START를 눌러 시작하세요';
   }
 
   // 게임 관련 이벤트가 들어올 때마다 두 타이머를 처음부터 다시 시작
