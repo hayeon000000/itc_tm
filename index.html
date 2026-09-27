@@ -28,7 +28,10 @@
     <div class="center-overlay">
       <div id="countdownNum" class="countdown-num"></div>
       <div id="resultBanner" class="result-banner"></div>
-      <button id="retryBtn" class="retry-btn" style="display:none;">다시하기</button>
+      <div class="result-actions">
+        <button id="retryBtn" class="retry-btn" style="display:none;">다시하기</button>
+        <button id="homeBtn" class="retry-btn home-btn" style="display:none;">처음 화면으로</button>
+      </div>
     </div>
   </main>
 
@@ -44,8 +47,7 @@
   </div>
 
   <div style="position:fixed;bottom:4px;left:4px;font-size:11px;opacity:.6;z-index:20;color:#fff;">
-    state: <b id="stateLabel">IDLE</b> · mode: <b id="modeLabel">MOCK</b> · 예측: <b id="predictLabel">-</b><br>
-    mock 입력 — <kbd>1</kbd>가위 <kbd>2</kbd>바위 <kbd>3</kbd>보 <kbd>0</kbd>대기 · <kbd>r</kbd> 강제 리셋 · <kbd>f</kbd> 전체화면
+    예측: <b id="predictLabel">-</b>
   </div>
 </div>
 
